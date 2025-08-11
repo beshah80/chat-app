@@ -1,42 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f7fb; /* Softer Telegram-inspired background */
+  --foreground: #1a202c;
+  --card: #ffffff;
+  --card-foreground: #1a202c;
+  --primary: #0088cc; /* Telegram blue */
+  --primary-foreground: #ffffff;
+  --secondary: #edf2f7;
+  --secondary-foreground: #2d3748;
+  --muted: #e2e8f0;
+  --muted-foreground: #718096;
+  --destructive: #e53e3e;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --ring: #0088cc;
+  --divider: #e2e8f0;
+  --sidebar-header: linear-gradient(90deg, #0088cc, #33b5e5); /* Gradient for sidebar header */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
+  background-color: var(--background);
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--muted);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.hamburger-button {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.hamburger-button:hover {
+  transform: scale(1.1);
+  background: var(--primary-foreground);
+  color: var(--primary);
 }
