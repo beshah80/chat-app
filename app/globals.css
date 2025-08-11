@@ -1,29 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #f4f7fb; /* Softer Telegram-inspired background */
+  --background: #f0f4f8; /* Light, airy background */
   --foreground: #1a202c;
   --card: #ffffff;
   --card-foreground: #1a202c;
-  --primary: #0088cc; /* Telegram blue */
+  --primary: #3b82f6; /* Vibrant blue */
   --primary-foreground: #ffffff;
-  --secondary: #edf2f7;
+  --secondary: #e5e7eb;
   --secondary-foreground: #2d3748;
-  --muted: #e2e8f0;
-  --muted-foreground: #718096;
-  --destructive: #e53e3e;
+  --muted: #d1d5db;
+  --muted-foreground: #6b7280;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --ring: #0088cc;
-  --divider: #e2e8f0;
-  --sidebar-header: linear-gradient(90deg, #0088cc, #33b5e5); /* Gradient for sidebar header */
+  --border: #d1d5db;
+  --ring: #3b82f6;
+  --divider: #d1d5db;
+  --sidebar-header: linear-gradient(90deg, #3b82f6, #a855f7); /* Vibrant gradient */
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
+  font-family: 'Comic Neue', sans-serif;
 }
 
 .scrollbar-thin {
@@ -57,31 +60,51 @@ body {
 }
 
 @keyframes wave {
-  0% { transform: rotate(0.0deg) }
-  10% { transform: rotate(14.0deg) }
-  20% { transform: rotate(-8.0deg) }
-  30% { transform: rotate(14.0deg) }
-  40% { transform: rotate(-4.0deg) }
-  50% { transform: rotate(10.0deg) }
-  60% { transform: rotate(0.0deg) }
-  100% { transform: rotate(0.0deg) }
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
 }
-.animate-wave {
-  animation: wave 2s infinite;
-  transform-origin: 70% 70%;
-}
+
 @keyframes wiggle {
   0%, 100% { transform: rotate(0deg); }
   25% { transform: rotate(-5deg); }
   75% { transform: rotate(5deg); }
 }
+
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.animate-wave {
+  animation: wave 2s infinite;
+  transform-origin: 70% 70%;
+}
+
 .animate-wiggle {
   animation: wiggle 1s infinite ease-in-out;
 }
+
 .animate-bounce {
   animation: bounce 1.5s infinite ease-in-out;
+}
+
+.animate-ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.font-comic {
+  font-family: 'Comic Neue', sans-serif;
 }

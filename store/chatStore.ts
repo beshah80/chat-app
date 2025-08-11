@@ -81,32 +81,29 @@ export const useChatStore = create<ChatState>()(
       contacts: [
         {
           id: "1",
-          name: "Alice Johnson",
-          phone: "+1234567890",
-          avatar:
-            "https://ui-avatars.com/api/?name=Alice+Johnson&background=27A7E7&color=fff",
+          name: "Fanuel Derbe",
+          phone: "+251911223344",
         },
         {
           id: "2",
-          name: "Bob Smith",
-          phone: "+0987654321",
-          avatar:
-            "https://ui-avatars.com/api/?name=Bob+Smith&background=27A7E7&color=fff",
+          name: "Beshah Ashenafi",
+          phone: "+251922334455",
         },
         {
           id: "3",
-          name: "Emma Wilson",
-          phone: "+1122334455",
-          avatar:
-            "https://ui-avatars.com/api/?name=Emma+Wilson&background=27A7E7&color=fff",
+          name: "Amanuel Takile",
+          phone: "+251933445566",
+        },
+        {
+          id: "4",
+          name: "Gezahegn Birhanu",
+          phone: "+251944556677",
         },
       ],
       chats: [
         {
           id: "1",
-          name: "Alice Johnson",
-          avatar:
-            "https://ui-avatars.com/api/?name=Alice+Johnson&background=27A7E7&color=fff",
+          name: "Fanuel Derbe",
           lastMessage: "Hey, how are you?",
           lastMessageTime: new Date(Date.now() - 2 * 60 * 1000),
           unreadCount: 2,
@@ -116,9 +113,7 @@ export const useChatStore = create<ChatState>()(
         },
         {
           id: "2",
-          name: "Bob Smith",
-          avatar:
-            "https://ui-avatars.com/api/?name=Bob+Smith&background=27A7E7&color=fff",
+          name: "Beshah Ashenafi",
           lastMessage: "Meeting at 3 PM?",
           lastMessageTime: new Date(Date.now() - 45 * 60 * 1000),
           unreadCount: 0,
@@ -128,13 +123,21 @@ export const useChatStore = create<ChatState>()(
         },
         {
           id: "3",
-          name: "Emma Wilson",
-          avatar:
-            "https://ui-avatars.com/api/?name=Emma+Wilson&background=27A7E7&color=fff",
+          name: "Amanuel Takile",
           lastMessage: "Check out this link!",
           lastMessageTime: new Date(Date.now() - 24 * 60 * 60 * 1000),
           unreadCount: 1,
           isOnline: true,
+          isPinned: false,
+          isArchived: false,
+        },
+        {
+          id: "4",
+          name: "Gezahegn Birhanu",
+          lastMessage: "Let's catch up soon!",
+          lastMessageTime: new Date(Date.now() - 12 * 60 * 60 * 1000),
+          unreadCount: 3,
+          isOnline: false,
           isPinned: false,
           isArchived: false,
         },
@@ -178,11 +181,21 @@ export const useChatStore = create<ChatState>()(
             senderId: "3",
           },
         ],
+        "4": [
+          {
+            id: "m5",
+            content: "Let's catch up soon!",
+            timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
+            isOwn: false,
+            status: "sent",
+            senderId: "4",
+          },
+        ],
       },
       activeChat: null,
-      sidebarOpen: false,
+      sidebarOpen: true, // Default to open for large screens
       viewMode: "chats",
-      hydrated: false,
+      hydrated: true,
       login: (email, password) => {
         if (email === "demo@example.com" && password === "demo123") {
           set({
@@ -190,12 +203,8 @@ export const useChatStore = create<ChatState>()(
               id: "user",
               name: "Demo User",
               email: "demo@example.com",
-              avatar:
-                "https://ui-avatars.com/api/?name=Demo+User&background=27A7E7&color=fff",
               bio: "Hello, I’m using Chat App!",
             },
-            activeChat: get().chats[0]?.id || null,
-            hydrated: true,
           });
           return true;
         }
@@ -213,13 +222,8 @@ export const useChatStore = create<ChatState>()(
               id: uuidv4(),
               name,
               email,
-              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                name
-              )}&background=27A7E7&color=fff`,
               bio: "Hello, I’m using Chat App!",
             },
-            activeChat: get().chats[0]?.id || null,
-            hydrated: true,
           });
           return true;
         }
@@ -229,21 +233,18 @@ export const useChatStore = create<ChatState>()(
         set({
           currentUser: null,
           activeChat: null,
-          sidebarOpen: false,
+          sidebarOpen: true,
           viewMode: "chats",
-          hydrated: true,
         }),
       updateProfile: (name, avatar, bio) =>
         set((state) => ({
           currentUser: state.currentUser
             ? { ...state.currentUser, name, avatar, bio }
             : state.currentUser,
-          hydrated: true,
         })),
       updatePrivacySettings: (settings) =>
         set((state) => ({
           privacySettings: { ...state.privacySettings, ...settings },
-          hydrated: true,
         })),
       addContact: (name, phone) => {
         if (!name || !phone || !phone.match(/^\+\d{10,15}$/)) return false;
@@ -251,9 +252,6 @@ export const useChatStore = create<ChatState>()(
           id: uuidv4(),
           name,
           phone,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            name
-          )}&background=27A7E7&color=fff`,
         };
         set((state) => ({
           contacts: [...state.contacts, newContact],
@@ -262,7 +260,6 @@ export const useChatStore = create<ChatState>()(
             {
               id: newContact.id,
               name: newContact.name,
-              avatar: newContact.avatar,
               lastMessage: "Started a new chat",
               lastMessageTime: new Date(),
               unreadCount: 0,
@@ -271,7 +268,6 @@ export const useChatStore = create<ChatState>()(
               isArchived: false,
             },
           ],
-          hydrated: true,
         }));
         return true;
       },
@@ -286,7 +282,6 @@ export const useChatStore = create<ChatState>()(
             state.activeChat === contactId
               ? state.chats.find((c) => !c.isArchived)?.id || null
               : state.activeChat,
-          hydrated: true,
         })),
       sendMessage: (chatId, content, quotedMessageId) => {
         const newMessage: Message = {
@@ -314,7 +309,6 @@ export const useChatStore = create<ChatState>()(
                 }
               : chat
           ),
-          hydrated: true,
         }));
       },
       setActiveChat: (chatId) =>
@@ -324,14 +318,12 @@ export const useChatStore = create<ChatState>()(
             chat.id === chatId ? { ...chat, unreadCount: 0 } : chat
           ),
           sidebarOpen: false,
-          hydrated: true,
         })),
       pinChat: (chatId) =>
         set((state) => ({
           chats: state.chats.map((chat) =>
             chat.id === chatId ? { ...chat, isPinned: !chat.isPinned } : chat
           ),
-          hydrated: true,
         })),
       archiveChat: (chatId) =>
         set((state) => ({
@@ -342,12 +334,10 @@ export const useChatStore = create<ChatState>()(
             state.activeChat === chatId
               ? state.chats.find((c) => !c.isArchived)?.id || null
               : state.activeChat,
-          hydrated: true,
         })),
       toggleSidebar: () =>
-        set((state) => ({ sidebarOpen: !state.sidebarOpen, hydrated: true })),
-      setViewMode: (mode) =>
-        set({ viewMode: mode, sidebarOpen: true, hydrated: true }),
+        set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+      setViewMode: (mode) => set({ viewMode: mode, sidebarOpen: true }),
       setHydrated: () => set({ hydrated: true }),
     }),
     {

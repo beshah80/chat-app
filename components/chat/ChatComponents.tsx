@@ -17,21 +17,21 @@ import { useChatStore } from "../../store/chatStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
-// Refined color palette - vibrant and solid
+// Refined color palette - vibrant and opaque
 const sillyColors = {
-  background: "#F0F2F5",
-  chatBackground: "#F5F5F5",
-  myBubble: "#FF69B4", // Hot Pink!
-  otherBubble: "#90EE90", // Light Green!
+  background: "#F0F4F8",
+  chatBackground: "#F9FAFB",
+  myBubble: "#FF69B4", // Hot Pink
+  otherBubble: "#A7F3D0", // Light Emerald
   myText: "#FFFFFF",
   otherText: "#1F2937",
   header: "#FFFFFF",
-  border: "#E5E7EB",
+  border: "#D1D5DB",
   secondaryText: "#6B7280",
   unreadBadge: "#FFD700", // Gold
-  sentIcon: "#FFC0CB", // Light pink
-  deliveredIcon: "#87CEEB", // Sky blue
-  readIcon: "#32CD32", // Lime green
+  sentIcon: "#FFC0CB", // Light Pink
+  deliveredIcon: "#60A5FA", // Sky Blue
+  readIcon: "#34D399", // Lime Green
 };
 
 interface Message {
@@ -120,7 +120,7 @@ function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
       } mb-1.5`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15 }}
+      transition={{ duration: 0.2 }}
     >
       <div
         className={`flex items-end space-x-1.5 max-w-[70%] ${
@@ -128,7 +128,7 @@ function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
         }`}
       >
         {showAvatar && !message.isOwn && (
-          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0 animate-pulse">
+          <div className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
             {message.senderId.charAt(0).toUpperCase()}
           </div>
         )}
@@ -163,12 +163,18 @@ export function ChatSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  // FIX: This ensures no chat is selected by default on first load.
-  // The 'activeChat' will remain undefined initially, showing the welcome message.
+  // Reset sidebarOpen to true on large screens to ensure hamburger menu doesn't persist
   useEffect(() => {
-    // We intentionally do not set an active chat here.
-    // The initial state of `activeChat` should be `null` or `undefined`.
-  }, [activeChat, chats, setActiveChat]);
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        // Tailwind's 'md' breakpoint
+        useChatStore.getState().setViewMode("chats"); // Ensure sidebarOpen is true on large screens
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Initial check
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const filteredChats = chats.filter((chat) =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -176,7 +182,6 @@ export function ChatSidebar() {
 
   return (
     <>
-      {/* Overlay for small screens */}
       {sidebarOpen && (
         <motion.div
           className="md:hidden fixed inset-0 bg-black/20 z-40"
@@ -187,12 +192,11 @@ export function ChatSidebar() {
         />
       )}
       <motion.aside
-        // FIX: The sidebar is now fixed on large screens and slides in/out on small screens.
         className={`fixed inset-y-0 left-0 z-50 w-60 bg-[${
           sillyColors.chatBackground
-        }] border-r border-gray-200 flex flex-col h-full 
-        md:relative md:translate-x-0 md:flex md:shadow-none
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        }] border-r border-gray-200 flex flex-col h-full md:static md:flex md:w-60 md:min-w-[240px] md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         initial={false}
         animate={{ x: sidebarOpen ? 0 : -240 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -203,12 +207,13 @@ export function ChatSidebar() {
               onClick={() => router.push("/profile")}
               className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
             >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-r from-blue-400 to-green-500 text-white flex items-center justify-center text-xs font-bold animate-bounce-slow">
+              <div className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
                 P
               </div>
-              <span className="font-bold text-sm text-gray-800">Profile</span>
+              <span className="font-bold text-sm text-gray-800 font-comic">
+                Profile
+              </span>
             </button>
-            {/* FIX: Hamburger menu is only visible on small screens. */}
             <Button
               variant="ghost"
               size="icon"
@@ -224,7 +229,7 @@ export function ChatSidebar() {
               placeholder="Search for your buddies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-gray-100 border-transparent text-xs rounded-full h-8 focus:bg-white focus:border-purple-400"
+              className="pl-9 bg-gray-100 border-transparent text-xs rounded-full h-8 focus:bg-white focus:border-purple-400 font-comic"
             />
           </div>
         </div>
@@ -235,7 +240,7 @@ export function ChatSidebar() {
                 key={chat.id}
                 className={`px-2 py-2.5 rounded-lg cursor-pointer transition-colors border-t border-divider first:border-t-0 ${
                   activeChat === chat.id
-                    ? "bg-[#e1f5fe] shadow-inner"
+                    ? "bg-blue-100 shadow-inner"
                     : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
@@ -247,17 +252,17 @@ export function ChatSidebar() {
               >
                 <div className="flex items-center space-x-2">
                   <div className="relative flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tl from-yellow-300 to-red-400 text-white flex items-center justify-center text-sm font-bold">
+                    <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
                       {chat.name.charAt(0).toUpperCase()}
                     </div>
                     {chat.isOnline && (
-                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full animate-ping-slow" />
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full animate-ping" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h3
-                        className={`font-bold text-xs truncate ${
+                        className={`font-bold text-xs truncate font-comic ${
                           activeChat === chat.id
                             ? "text-blue-500"
                             : "text-gray-800"
@@ -270,7 +275,7 @@ export function ChatSidebar() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-[11px] text-gray-600 truncate">
+                      <p className="text-[11px] text-gray-600 truncate font-comic">
                         {chat.lastMessage}
                       </p>
                       {chat.unreadCount > 0 && (
@@ -289,14 +294,14 @@ export function ChatSidebar() {
               </motion.div>
             ))}
             {filteredChats.length === 0 && (
-              <div className="p-6 text-center text-gray-500 text-xs">
+              <div className="p-6 text-center text-gray-500 text-xs font-comic">
                 No chats found. So lonely...
               </div>
             )}
           </div>
         </div>
         <div className="p-2 border-t border-gray-200 bg-white shadow-inner">
-          <div className="flex items-center justify-between text-[10px] text-gray-500">
+          <div className="flex items-center justify-between text-[10px] text-gray-500 font-comic">
             <span>Chat App 😜</span>
             <span>v1.0.1</span>
           </div>
@@ -312,6 +317,19 @@ export function ChatWindow() {
   const inputRef = useRef<HTMLInputElement>(null);
   const { chats, messages, activeChat, sendMessage, toggleSidebar } =
     useChatStore();
+
+  // Ensure hamburger menu is hidden on large screens after resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        // Tailwind's 'md' breakpoint
+        useChatStore.getState().setViewMode("chats"); // Set sidebarOpen: true
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Initial check
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const currentChat = chats.find((chat) => chat.id === activeChat);
   const chatMessages = useMemo(
@@ -352,19 +370,19 @@ export function ChatWindow() {
         className={`flex-1 flex items-center justify-center bg-[${sillyColors.chatBackground}]`}
       >
         <motion.div
-          className="text-center space-y-3"
+          className="text-center space-y-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, type: "spring" }}
         >
-          <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg transform rotate-12">
-            <Send className="w-8 h-8 text-[#FF69B4]" />
+          <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
+            <Send className="w-8 h-8 text-[#FF69B4] animate-bounce" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-gray-800 animate-pulse-slow">
+            <h3 className="text-base font-bold text-gray-800 animate-pulse font-comic">
               Start a wacky conversation!
             </h3>
-            <p className="text-xs text-gray-600 max-w-xs mx-auto">
+            <p className="text-xs text-gray-600 max-w-xs mx-auto font-comic">
               Pick a friend from the left sidebar and let the silliness begin!
             </p>
           </div>
@@ -384,7 +402,6 @@ export function ChatWindow() {
         transition={{ duration: 0.3 }}
       >
         <div className="flex items-center space-x-2">
-          {/* FIX: Hamburger menu is only visible on small screens. */}
           <Button
             variant="ghost"
             size="icon"
@@ -394,18 +411,18 @@ export function ChatWindow() {
             <Menu className="h-4 w-4 text-gray-600" />
           </Button>
           <div className="relative">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
+            <div className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
               {currentChat.name.charAt(0).toUpperCase()}
             </div>
             {currentChat.isOnline && (
-              <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border border-white rounded-full" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border border-white rounded-full animate-ping" />
             )}
           </div>
           <div>
-            <h2 className="font-bold text-sm text-gray-800">
+            <h2 className="font-bold text-sm text-gray-800 font-comic">
               {currentChat.name}
             </h2>
-            <p className="text-[11px] text-gray-600">
+            <p className="text-[11px] text-gray-600 font-comic">
               {currentChat.isOnline
                 ? "Online and ready to party!"
                 : "Out doing something boring"}
@@ -445,7 +462,7 @@ export function ChatWindow() {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your funny thoughts here..."
-            className="resize-none min-h-[36px] max-h-20 bg-gray-100 border-transparent rounded-full text-xs"
+            className="resize-none min-h-[36px] max-h-20 bg-gray-100 border-transparent rounded-full text-xs font-comic"
           />
           <Button
             type="submit"

@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChatSidebar, ChatWindow } from "../../components/chat/ChatComponents";
@@ -20,16 +21,26 @@ export default function ChatPage() {
 
   if (isLoading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <motion.div
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <p className="text-gray-600 font-semibold animate-pulse">Loading...</p>
+      </motion.div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <motion.div
+      className="flex h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <ChatSidebar />
       <ChatWindow />
-    </div>
+    </motion.div>
   );
 }

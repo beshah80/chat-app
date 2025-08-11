@@ -15,8 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* The body tag now has a clean background color and uses antialiasing for smoother fonts. */}
-      <body className={`${inter.className} bg-gray-50 antialiased`}>
+      <body className={`${inter.className} bg-gray-50 antialiased font-comic`}>
         {children}
       </body>
     </html>

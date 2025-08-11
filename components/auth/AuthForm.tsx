@@ -57,14 +57,13 @@ export function AuthForm({ type }: AuthFormProps) {
   };
 
   return (
-    // The main container is now a vibrant card with pronounced rounded corners and a shadow.
     <motion.div
       className="bg-white rounded-2xl p-8 shadow-xl"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <h2 className="text-3xl font-bold text-gray-900 mb-6">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6 font-comic">
         {type === "login" ? "Welcome Back!" : "Join the Fun!"}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -75,7 +74,7 @@ export function AuthForm({ type }: AuthFormProps) {
               placeholder="Your Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full"
+              className="w-full font-comic"
             />
           </div>
         )}
@@ -85,7 +84,7 @@ export function AuthForm({ type }: AuthFormProps) {
             placeholder="Your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full"
+            className="w-full font-comic"
           />
         </div>
         <div>
@@ -94,15 +93,13 @@ export function AuthForm({ type }: AuthFormProps) {
             placeholder="Your Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full"
+            className="w-full font-comic"
           />
         </div>
-        {/* Error message styling is updated for better visibility. */}
-        {error && <p className="text-sm text-red-500 font-semibold">{error}</p>}
-        {/* The button now has a more vibrant color, rounded shape, and shadow. */}
+        {error && <p className="text-sm text-red-500 font-comic">{error}</p>}
         <Button
           type="submit"
-          className="w-full bg-blue-600 text-white font-bold text-lg rounded-full py-3 shadow-lg hover:bg-blue-700 transition-colors"
+          className="w-full bg-blue-500 text-white font-bold text-lg rounded-full py-3 shadow-lg hover:bg-blue-600 transition-colors font-comic"
         >
           {type === "login" ? "Sign In" : "Sign Up"}
         </Button>
