@@ -57,21 +57,22 @@ export function AuthForm({ type }: AuthFormProps) {
   };
 
   return (
+    // The main container is now a vibrant card with pronounced rounded corners and a shadow.
     <motion.div
-      className="bg-card rounded-2xl p-6 shadow-sm"
+      className="bg-white rounded-2xl p-8 shadow-xl"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.4 }}
     >
-      <h2 className="text-lg font-semibold text-foreground mb-4">
-        {type === "login" ? "Sign In" : "Sign Up"}
+      <h2 className="text-3xl font-bold text-gray-900 mb-6">
+        {type === "login" ? "Welcome Back!" : "Join the Fun!"}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {type === "signup" && (
           <div>
             <Input
               type="text"
-              placeholder="Name"
+              placeholder="Your Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full"
@@ -81,7 +82,7 @@ export function AuthForm({ type }: AuthFormProps) {
         <div>
           <Input
             type="email"
-            placeholder="Email"
+            placeholder="Your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full"
@@ -90,14 +91,19 @@ export function AuthForm({ type }: AuthFormProps) {
         <div>
           <Input
             type="password"
-            placeholder="Password"
+            placeholder="Your Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full"
           />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" className="w-full">
+        {/* Error message styling is updated for better visibility. */}
+        {error && <p className="text-sm text-red-500 font-semibold">{error}</p>}
+        {/* The button now has a more vibrant color, rounded shape, and shadow. */}
+        <Button
+          type="submit"
+          className="w-full bg-blue-600 text-white font-bold text-lg rounded-full py-3 shadow-lg hover:bg-blue-700 transition-colors"
+        >
           {type === "login" ? "Sign In" : "Sign Up"}
         </Button>
       </form>

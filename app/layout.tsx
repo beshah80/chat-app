@@ -15,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      {/* The body tag now has a clean background color and uses antialiasing for smoother fonts. */}
+      <body className={`${inter.className} bg-gray-50 antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

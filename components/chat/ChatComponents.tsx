@@ -17,6 +17,23 @@ import { useChatStore } from "../../store/chatStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
+// Refined color palette - vibrant and solid
+const sillyColors = {
+  background: "#F0F2F5",
+  chatBackground: "#F5F5F5",
+  myBubble: "#FF69B4", // Hot Pink!
+  otherBubble: "#90EE90", // Light Green!
+  myText: "#FFFFFF",
+  otherText: "#1F2937",
+  header: "#FFFFFF",
+  border: "#E5E7EB",
+  secondaryText: "#6B7280",
+  unreadBadge: "#FFD700", // Gold
+  sentIcon: "#FFC0CB", // Light pink
+  deliveredIcon: "#87CEEB", // Sky blue
+  readIcon: "#32CD32", // Lime green
+};
+
 interface Message {
   id: string;
   content: string;
@@ -32,12 +49,12 @@ function formatTime(date: Date) {
     Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60);
   if (diffInHours < 1) {
     const minutes = Math.floor(diffInHours * 60);
-    return minutes < 1 ? "now" : `${minutes}m`;
+    return minutes < 1 ? "just now" : `${minutes}m ago`;
   } else if (diffInHours < 24) {
-    return `${Math.floor(diffInHours)}h`;
+    return `${Math.floor(diffInHours)}h ago`;
   } else {
     const days = Math.floor(diffInHours / 24);
-    return days === 1 ? "1d" : `${days}d`;
+    return days === 1 ? "yesterday" : `${days}d ago`;
   }
 }
 
@@ -51,7 +68,7 @@ function formatMessageTime(date: Date) {
   if (isToday) {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   } else if (isYesterday) {
-    return `Yesterday ${date.toLocaleTimeString([], {
+    return `Yesterday at ${date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     })}`;
@@ -68,11 +85,15 @@ function formatMessageTime(date: Date) {
 function MessageStatusIcon({ status }: { status: string }) {
   switch (status) {
     case "sent":
-      return <Clock className="h-3 w-3 text-blue-100" />;
+      return <Clock className={`h-3 w-3 text-[${sillyColors.sentIcon}]`} />;
     case "delivered":
-      return <Check className="h-3 w-3 text-blue-100" />;
+      return (
+        <Check className={`h-3 w-3 text-[${sillyColors.deliveredIcon}]`} />
+      );
     case "read":
-      return <CheckCheck className="h-3 w-3 text-blue-400" />;
+      return (
+        <CheckCheck className={`h-3 w-3 text-[${sillyColors.readIcon}]`} />
+      );
     default:
       return null;
   }
@@ -107,34 +128,29 @@ function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
         }`}
       >
         {showAvatar && !message.isOwn && (
-          <div className="w-5 h-5 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0 animate-pulse">
             {message.senderId.charAt(0).toUpperCase()}
           </div>
         )}
         {!showAvatar && !message.isOwn && <div className="w-5" />}
         <div
-          className={`px-2.5 py-1.5 rounded-2xl relative shadow-sm ${
+          className={`px-3 py-2 rounded-2xl relative shadow-lg transform hover:scale-105 transition-transform duration-200 ${
             message.isOwn
-              ? "bg-[#0078FF] text-white"
-              : "bg-white text-foreground border border-gray-200"
+              ? `bg-[${sillyColors.myBubble}] text-[${sillyColors.myText}] rounded-br-sm`
+              : `bg-[${sillyColors.otherBubble}] text-[${sillyColors.otherText}] border border-gray-200 rounded-bl-sm`
           }`}
         >
-          <p className="text-xs leading-tight break-words">{message.content}</p>
+          <p className="text-sm leading-tight break-words font-comic">
+            {message.content}
+          </p>
           <div
             className={`flex items-center justify-end space-x-1 mt-0.5 text-[10px] ${
-              message.isOwn ? "text-blue-100" : "text-gray-500"
+              message.isOwn ? "text-white/70" : "text-gray-500"
             }`}
           >
             <span>{formatMessageTime(message.timestamp)}</span>
             {message.isOwn && <MessageStatusIcon status={message.status} />}
           </div>
-          <div
-            className={`absolute bottom-0 w-2.5 h-2.5 ${
-              message.isOwn
-                ? "-right-1 bg-[#0078FF] rounded-bl-full"
-                : "-left-1 bg-white border-l border-b border-gray-200 rounded-br-full"
-            }`}
-          />
         </div>
       </div>
     </motion.div>
@@ -147,10 +163,11 @@ export function ChatSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
+  // FIX: This ensures no chat is selected by default on first load.
+  // The 'activeChat' will remain undefined initially, showing the welcome message.
   useEffect(() => {
-    if (!activeChat && chats.length > 0) {
-      setActiveChat(chats[0].id);
-    }
+    // We intentionally do not set an active chat here.
+    // The initial state of `activeChat` should be `null` or `undefined`.
   }, [activeChat, chats, setActiveChat]);
 
   const filteredChats = chats.filter((chat) =>
@@ -159,9 +176,10 @@ export function ChatSidebar() {
 
   return (
     <>
+      {/* Overlay for small screens */}
       {sidebarOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/20 z-40"
+          className="md:hidden fixed inset-0 bg-black/20 z-40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -169,37 +187,44 @@ export function ChatSidebar() {
         />
       )}
       <motion.aside
-        className={`fixed inset-y-0 left-0 z-50 w-60 bg-[#f0f2f5] border-r border-gray-200 flex flex-col h-full ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        // FIX: The sidebar is now fixed on large screens and slides in/out on small screens.
+        className={`fixed inset-y-0 left-0 z-50 w-60 bg-[${
+          sillyColors.chatBackground
+        }] border-r border-gray-200 flex flex-col h-full 
+        md:relative md:translate-x-0 md:flex md:shadow-none
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
         initial={false}
         animate={{ x: sidebarOpen ? 0 : -240 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
       >
-        <div className="p-2 border-b border-gray-200">
+        <div className="p-2 border-b border-gray-200 bg-white shadow-md">
           <div className="flex items-center justify-between mb-2">
             <button
               onClick={() => router.push("/profile")}
-              className="flex items-center space-x-2 hover:bg-gray-200 rounded-lg p-1.5 transition-colors"
+              className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
             >
-              <div className="w-7 h-7 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-xs font-semibold">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-r from-blue-400 to-green-500 text-white flex items-center justify-center text-xs font-bold animate-bounce-slow">
                 P
               </div>
-              <span className="font-semibold text-sm text-gray-800">
-                Profile
-              </span>
+              <span className="font-bold text-sm text-gray-800">Profile</span>
             </button>
-            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            {/* FIX: Hamburger menu is only visible on small screens. */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="hover:bg-gray-100 md:hidden"
+            >
               <Menu className="h-4 w-4 text-gray-600" />
             </Button>
           </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-500" />
             <Input
-              placeholder="Search chats..."
+              placeholder="Search for your buddies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-white border-gray-200 text-xs rounded-full h-8"
+              className="pl-9 bg-gray-100 border-transparent text-xs rounded-full h-8 focus:bg-white focus:border-purple-400"
             />
           </div>
         </div>
@@ -209,30 +234,32 @@ export function ChatSidebar() {
               <motion.div
                 key={chat.id}
                 className={`px-2 py-2.5 rounded-lg cursor-pointer transition-colors border-t border-divider first:border-t-0 ${
-                  activeChat === chat.id ? "bg-[#e1f5fe]" : "hover:bg-gray-200"
+                  activeChat === chat.id
+                    ? "bg-[#e1f5fe] shadow-inner"
+                    : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
                   setActiveChat(chat.id);
                   if (sidebarOpen) toggleSidebar();
                 }}
-                whileHover={{ scale: 1.01 }}
+                whileHover={{ scale: 1.01, backgroundColor: "#E6F6FF" }}
                 whileTap={{ scale: 0.99 }}
               >
                 <div className="flex items-center space-x-2">
                   <div className="relative flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-sm font-semibold">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-tl from-yellow-300 to-red-400 text-white flex items-center justify-center text-sm font-bold">
                       {chat.name.charAt(0).toUpperCase()}
                     </div>
                     {chat.isOnline && (
-                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border border-white rounded-full" />
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full animate-ping-slow" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h3
-                        className={`font-semibold text-xs truncate ${
+                        className={`font-bold text-xs truncate ${
                           activeChat === chat.id
-                            ? "text-[#0078FF]"
+                            ? "text-blue-500"
                             : "text-gray-800"
                         }`}
                       >
@@ -248,7 +275,7 @@ export function ChatSidebar() {
                       </p>
                       {chat.unreadCount > 0 && (
                         <motion.div
-                          className="ml-2 px-1.5 py-0.5 bg-[#0078FF] text-white rounded-full text-[10px] font-medium min-w-[18px] text-center"
+                          className={`ml-2 px-1.5 py-0.5 bg-[${sillyColors.unreadBadge}] text-gray-800 rounded-full text-[10px] font-bold min-w-[18px] text-center`}
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ type: "spring", stiffness: 500 }}
@@ -263,15 +290,15 @@ export function ChatSidebar() {
             ))}
             {filteredChats.length === 0 && (
               <div className="p-6 text-center text-gray-500 text-xs">
-                No chats found
+                No chats found. So lonely...
               </div>
             )}
           </div>
         </div>
-        <div className="p-2 border-t border-gray-200">
+        <div className="p-2 border-t border-gray-200 bg-white shadow-inner">
           <div className="flex items-center justify-between text-[10px] text-gray-500">
-            <span>Chat App</span>
-            <span>v1.0</span>
+            <span>Chat App 😜</span>
+            <span>v1.0.1</span>
           </div>
         </div>
       </motion.aside>
@@ -321,38 +348,53 @@ export function ChatWindow() {
 
   if (!activeChat || !currentChat) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#f0f2f5]">
-        <div className="text-center space-y-3">
-          <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-sm">
-            <Send className="w-8 h-8 text-[#0078FF]" />
+      <div
+        className={`flex-1 flex items-center justify-center bg-[${sillyColors.chatBackground}]`}
+      >
+        <motion.div
+          className="text-center space-y-3"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring" }}
+        >
+          <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg transform rotate-12">
+            <Send className="w-8 h-8 text-[#FF69B4]" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-800">
-              Start a conversation
+            <h3 className="text-base font-bold text-gray-800 animate-pulse-slow">
+              Start a wacky conversation!
             </h3>
-            <p className="text-xs text-gray-600">
-              Select a chat from the sidebar to begin messaging
+            <p className="text-xs text-gray-600 max-w-xs mx-auto">
+              Pick a friend from the left sidebar and let the silliness begin!
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#f0f2f5]">
+    <div
+      className={`flex-1 flex flex-col h-full bg-[${sillyColors.chatBackground}]`}
+    >
       <motion.header
-        className="p-2.5 border-b border-gray-200 bg-white flex items-center justify-between shadow-sm"
+        className={`p-2.5 border-b border-gray-200 bg-[${sillyColors.header}] flex items-center justify-between shadow-md`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          {/* FIX: Hamburger menu is only visible on small screens. */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="md:hidden"
+          >
             <Menu className="h-4 w-4 text-gray-600" />
           </Button>
           <div className="relative">
-            <div className="w-7 h-7 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-xs font-semibold">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
               {currentChat.name.charAt(0).toUpperCase()}
             </div>
             {currentChat.isOnline && (
@@ -360,24 +402,26 @@ export function ChatWindow() {
             )}
           </div>
           <div>
-            <h2 className="font-semibold text-sm text-gray-800">
+            <h2 className="font-bold text-sm text-gray-800">
               {currentChat.name}
             </h2>
             <p className="text-[11px] text-gray-600">
-              {currentChat.isOnline ? "Online" : "Last seen recently"}
+              {currentChat.isOnline
+                ? "Online and ready to party!"
+                : "Out doing something boring"}
             </p>
           </div>
         </div>
         <div className="flex items-center space-x-1">
-          <Button variant="ghost" size="icon" className="hover:bg-gray-200">
+          <Button variant="ghost" size="icon" className="hover:bg-gray-100">
             <Phone className="h-4 w-4 text-gray-600" />
           </Button>
-          <Button variant="ghost" size="icon" className="hover:bg-gray-200">
+          <Button variant="ghost" size="icon" className="hover:bg-gray-100">
             <MoreVertical className="h-4 w-4 text-gray-600" />
           </Button>
         </div>
       </motion.header>
-      <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin bg-[#f0f2f5]">
+      <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin">
         {chatMessages.map((msg, index) => (
           <MessageBubble
             key={msg.id}
@@ -389,7 +433,7 @@ export function ChatWindow() {
       </div>
       <motion.form
         onSubmit={handleSendMessage}
-        className="p-2 border-t border-gray-200 bg-white shadow-sm"
+        className="p-2 border-t border-gray-200 bg-white shadow-lg"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -400,14 +444,14 @@ export function ChatWindow() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="resize-none min-h-[36px] max-h-20 bg-white border-gray-200 rounded-full text-xs"
+            placeholder="Type your funny thoughts here..."
+            className="resize-none min-h-[36px] max-h-20 bg-gray-100 border-transparent rounded-full text-xs"
           />
           <Button
             type="submit"
             size="icon"
             disabled={!message.trim()}
-            className="bg-[#0078FF] hover:bg-[#0066cc]"
+            className="bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 rounded-full shadow-lg transition-transform duration-200 hover:scale-105"
           >
             <Send className="h-4 w-4 text-white" />
           </Button>
