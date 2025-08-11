@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Mail, User, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
-import { ImageWithFallback } from "../../components/ui/imageWithFallback";
 import { useChatStore } from "../../store/chatStore";
 
 export default function ProfilePage() {
@@ -40,14 +39,9 @@ export default function ProfilePage() {
           </Button>
         </div>
         <div className="flex flex-col items-center space-y-4">
-          <ImageWithFallback
-            src={
-              currentUser?.avatar ||
-              "https://ui-avatars.com/api/?name=User&background=0ea5e9&color=fff"
-            }
-            alt="Profile"
-            className="w-24 h-24 rounded-full object-cover"
-          />
+          <div className="w-24 h-24 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-2xl font-semibold">
+            {currentUser?.name.charAt(0).toUpperCase()}
+          </div>
           <div className="text-center">
             <h3 className="font-semibold text-foreground">
               {currentUser?.name}

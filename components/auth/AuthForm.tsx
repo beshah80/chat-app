@@ -1,111 +1,106 @@
-import React, { useState } from "react";
+"use client";
+
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useChatStore } from "../../store/chatStore";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 interface AuthFormProps {
   type: "login" | "signup";
 }
 
-const AuthForm = ({ type }: AuthFormProps) => {
+export function AuthForm({ type }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const { login, signup } = useChatStore();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (type === "signup" && name.length < 2) {
+      setError("Name must be at least 2 characters long");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
 
     let success;
     if (type === "login") {
       success = login(email, password);
       if (!success) {
         setError("Invalid email or password");
+        return;
       }
     } else {
       success = signup(name, email, password);
       if (!success) {
-        setError(
-          "Invalid input. Ensure email is valid, password is at least 6 characters, and name is at least 2 characters"
-        );
+        setError("Email already exists or invalid input");
+        return;
       }
     }
+
+    router.push("/chat");
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-center text-3xl font-extrabold text-gray-900">
-        {type === "login" ? "Sign in to your account" : "Create a new account"}
+    <motion.div
+      className="bg-card rounded-2xl p-6 shadow-sm"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <h2 className="text-lg font-semibold text-foreground mb-4">
+        {type === "login" ? "Sign In" : "Sign Up"}
       </h2>
-      {error && <div className="text-red-500 text-center">{error}</div>}
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <div className="rounded-md shadow-sm -space-y-px">
-          {type === "signup" && (
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-          )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {type === "signup" && (
           <div>
-            <label htmlFor="email-address" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="email-address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 ${
-                type === "signup" ? "" : "rounded-t-md"
-              } focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+            <Input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full"
             />
           </div>
-          <div>
-            <label htmlFor="password" className="sr-only">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete={
-                type === "login" ? "current-password" : "new-password"
-              }
-              required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-        </div>
-
+        )}
         <div>
-          <button
-            type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            {type === "login" ? "Sign in" : "Sign up"}
-          </button>
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full"
+          />
         </div>
+        <div>
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <Button type="submit" className="w-full">
+          {type === "login" ? "Sign In" : "Sign Up"}
+        </Button>
       </form>
-    </div>
+    </motion.div>
   );
-};
-
-export default AuthForm;
+}

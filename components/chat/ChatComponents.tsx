@@ -12,21 +12,10 @@ import {
   Send,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChatStore } from "../../store/chatStore";
 import { Button } from "../ui/button";
-import { ImageWithFallback } from "../ui/imageWithFallback";
 import { Input } from "../ui/input";
-
-interface Chat {
-  id: string;
-  name: string;
-  avatar?: string;
-  lastMessage: string;
-  lastMessageTime: Date;
-  unreadCount: number;
-  isOnline: boolean;
-}
 
 interface Message {
   id: string;
@@ -95,8 +84,6 @@ interface MessageBubbleProps {
 }
 
 function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
-  const { currentUser } = useChatStore();
-
   const showAvatar =
     !message.isOwn &&
     (!previousMessage ||
@@ -120,19 +107,15 @@ function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
         }`}
       >
         {showAvatar && !message.isOwn && (
-          <ImageWithFallback
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-              message.senderId
-            )}&background=0088cc&color=fff`}
-            alt="Sender"
-            className="w-5 h-5 rounded-full flex-shrink-0"
-          />
+          <div className="w-5 h-5 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+            {message.senderId.charAt(0).toUpperCase()}
+          </div>
         )}
         {!showAvatar && !message.isOwn && <div className="w-5" />}
         <div
           className={`px-2.5 py-1.5 rounded-2xl relative shadow-sm ${
             message.isOwn
-              ? "bg-[#0088cc] text-white"
+              ? "bg-[#0078FF] text-white"
               : "bg-white text-foreground border border-gray-200"
           }`}
         >
@@ -148,7 +131,7 @@ function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
           <div
             className={`absolute bottom-0 w-2.5 h-2.5 ${
               message.isOwn
-                ? "-right-1 bg-[#0088cc] rounded-bl-full"
+                ? "-right-1 bg-[#0078FF] rounded-bl-full"
                 : "-left-1 bg-white border-l border-b border-gray-200 rounded-br-full"
             }`}
           />
@@ -159,14 +142,8 @@ function MessageBubble({ message, previousMessage }: MessageBubbleProps) {
 }
 
 export function ChatSidebar() {
-  const {
-    chats,
-    activeChat,
-    setActiveChat,
-    sidebarOpen,
-    toggleSidebar,
-    currentUser,
-  } = useChatStore();
+  const { chats, activeChat, setActiveChat, sidebarOpen, toggleSidebar } =
+    useChatStore();
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
@@ -192,56 +169,46 @@ export function ChatSidebar() {
         />
       )}
       <motion.aside
-        className={`fixed sm:static inset-y-0 left-0 z-50 w-64 bg-[#f0f2f5] border-r border-gray-200 flex flex-col h-full ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0"
+        className={`fixed inset-y-0 left-0 z-50 w-60 bg-[#f0f2f5] border-r border-gray-200 flex flex-col h-full ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         initial={false}
-        animate={{ x: sidebarOpen ? 0 : -256 }}
+        animate={{ x: sidebarOpen ? 0 : -240 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
       >
-        <div className="p-3 border-b border-gray-200 bg-gradient-to-r from-[#0088cc] to-[#33b5e5]">
-          <div className="flex items-center justify-between mb-3">
+        <div className="p-2 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-2">
             <button
               onClick={() => router.push("/profile")}
-              className="flex items-center space-x-2 hover:bg-white/20 rounded-lg p-1.5 transition-colors"
+              className="flex items-center space-x-2 hover:bg-gray-200 rounded-lg p-1.5 transition-colors"
             >
-              <ImageWithFallback
-                src={
-                  currentUser?.avatar ||
-                  "https://ui-avatars.com/api/?name=User&background=0088cc&color=fff"
-                }
-                alt={currentUser?.name}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <span className="font-semibold text-sm text-white">
-                {currentUser?.name}
+              <div className="w-7 h-7 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-xs font-semibold">
+                P
+              </div>
+              <span className="font-semibold text-sm text-gray-800">
+                Profile
               </span>
             </button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20"
-              onClick={toggleSidebar}
-            >
-              <Menu className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+              <Menu className="h-4 w-4 text-gray-600" />
             </Button>
           </div>
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-200" />
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-500" />
             <Input
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-white border-gray-200 text-xs rounded-full h-9 text-gray-800"
+              className="pl-9 bg-white border-gray-200 text-xs rounded-full h-8"
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto scrollbar-thin p-2">
-          <div className="space-y-1">
+        <div className="flex-1 overflow-y-auto scrollbar-thin">
+          <div className="space-y-0.5 p-1">
             {filteredChats.map((chat) => (
               <motion.div
                 key={chat.id}
-                className={`px-3 py-2 rounded-lg cursor-pointer transition-colors border-t border-divider first:border-t-0 ${
+                className={`px-2 py-2.5 rounded-lg cursor-pointer transition-colors border-t border-divider first:border-t-0 ${
                   activeChat === chat.id ? "bg-[#e1f5fe]" : "hover:bg-gray-200"
                 }`}
                 onClick={() => {
@@ -251,44 +218,37 @@ export function ChatSidebar() {
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
               >
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <div className="relative flex-shrink-0">
-                    <ImageWithFallback
-                      src={
-                        chat.avatar ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          chat.name
-                        )}&background=0088cc&color=fff`
-                      }
-                      alt={chat.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <div className="w-9 h-9 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-sm font-semibold">
+                      {chat.name.charAt(0).toUpperCase()}
+                    </div>
                     {chat.isOnline && (
-                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border border-white rounded-full" />
+                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border border-white rounded-full" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h3
-                        className={`font-semibold text-sm truncate ${
+                        className={`font-semibold text-xs truncate ${
                           activeChat === chat.id
-                            ? "text-[#0088cc]"
+                            ? "text-[#0078FF]"
                             : "text-gray-800"
                         }`}
                       >
                         {chat.name}
                       </h3>
-                      <span className="text-xs text-gray-500 flex-shrink-0">
+                      <span className="text-[10px] text-gray-500 flex-shrink-0">
                         {formatTime(chat.lastMessageTime)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-600 truncate">
+                      <p className="text-[11px] text-gray-600 truncate">
                         {chat.lastMessage}
                       </p>
                       {chat.unreadCount > 0 && (
                         <motion.div
-                          className="ml-2 px-1.5 py-0.5 bg-[#0088cc] text-white rounded-full text-xs font-medium min-w-[20px] text-center"
+                          className="ml-2 px-1.5 py-0.5 bg-[#0078FF] text-white rounded-full text-[10px] font-medium min-w-[18px] text-center"
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ type: "spring", stiffness: 500 }}
@@ -302,14 +262,14 @@ export function ChatSidebar() {
               </motion.div>
             ))}
             {filteredChats.length === 0 && (
-              <div className="p-6 text-center text-gray-500 text-sm">
+              <div className="p-6 text-center text-gray-500 text-xs">
                 No chats found
               </div>
             )}
           </div>
         </div>
-        <div className="p-3 border-t border-gray-200 bg-white">
-          <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="p-2 border-t border-gray-200">
+          <div className="flex items-center justify-between text-[10px] text-gray-500">
             <span>Chat App</span>
             <span>v1.0</span>
           </div>
@@ -327,7 +287,10 @@ export function ChatWindow() {
     useChatStore();
 
   const currentChat = chats.find((chat) => chat.id === activeChat);
-  const chatMessages = activeChat ? messages[activeChat] || [] : [];
+  const chatMessages = useMemo(
+    () => (activeChat ? messages[activeChat] || [] : []),
+    [activeChat, messages]
+  );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -361,7 +324,7 @@ export function ChatWindow() {
       <div className="flex-1 flex items-center justify-center bg-[#f0f2f5]">
         <div className="text-center space-y-3">
           <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-sm">
-            <Send className="w-8 h-8 text-[#0088cc]" />
+            <Send className="w-8 h-8 text-[#0078FF]" />
           </div>
           <div>
             <h3 className="text-base font-semibold text-gray-800">
@@ -379,51 +342,33 @@ export function ChatWindow() {
   return (
     <div className="flex-1 flex flex-col h-full bg-[#f0f2f5]">
       <motion.header
-        className="p-3 border-b border-gray-200 bg-white flex items-center justify-between shadow-sm"
+        className="p-2.5 border-b border-gray-200 bg-white flex items-center justify-between shadow-sm"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-center space-x-3">
-          <motion.div
-            className="hamburger-button w-10 h-10 rounded-full flex items-center justify-center"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              title="Toggle Sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </motion.div>
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            <Menu className="h-4 w-4 text-gray-600" />
+          </Button>
           <div className="relative">
-            <ImageWithFallback
-              src={
-                currentChat.avatar ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  currentChat.name
-                )}&background=0088cc&color=fff`
-              }
-              alt={currentChat.name}
-              className="w-8 h-8 rounded-full object-cover"
-            />
+            <div className="w-7 h-7 rounded-full bg-[#0078FF] text-white flex items-center justify-center text-xs font-semibold">
+              {currentChat.name.charAt(0).toUpperCase()}
+            </div>
             {currentChat.isOnline && (
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border border-white rounded-full" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-400 border border-white rounded-full" />
             )}
           </div>
           <div>
             <h2 className="font-semibold text-sm text-gray-800">
               {currentChat.name}
             </h2>
-            <p className="text-xs text-gray-600">
+            <p className="text-[11px] text-gray-600">
               {currentChat.isOnline ? "Online" : "Last seen recently"}
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           <Button variant="ghost" size="icon" className="hover:bg-gray-200">
             <Phone className="h-4 w-4 text-gray-600" />
           </Button>
@@ -432,7 +377,7 @@ export function ChatWindow() {
           </Button>
         </div>
       </motion.header>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin bg-[#f0f2f5]">
+      <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin bg-[#f0f2f5]">
         {chatMessages.map((msg, index) => (
           <MessageBubble
             key={msg.id}
@@ -444,27 +389,27 @@ export function ChatWindow() {
       </div>
       <motion.form
         onSubmit={handleSendMessage}
-        className="p-3 border-t border-gray-200 bg-white shadow-sm"
+        className="p-2 border-t border-gray-200 bg-white shadow-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-end space-x-2">
+        <div className="flex items-end space-x-1.5">
           <Input
             ref={inputRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="resize-none min-h-[40px] max-h-24 bg-white border-gray-200 rounded-full text-sm"
+            className="resize-none min-h-[36px] max-h-20 bg-white border-gray-200 rounded-full text-xs"
           />
           <Button
             type="submit"
             size="icon"
             disabled={!message.trim()}
-            className="bg-[#0088cc] hover:bg-[#0066cc]"
+            className="bg-[#0078FF] hover:bg-[#0066cc]"
           >
-            <Send className="h-5 w-5 text-white" />
+            <Send className="h-4 w-4 text-white" />
           </Button>
         </div>
       </motion.form>
