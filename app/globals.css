@@ -5,11 +5,11 @@
 @tailwind utilities;
 
 :root {
-  --background: #f0f4f8; /* Light, airy background */
+  --background: #f0f4f8;
   --foreground: #1a202c;
   --card: #ffffff;
   --card-foreground: #1a202c;
-  --primary: #3b82f6; /* Vibrant blue */
+  --primary: #3b82f6;
   --primary-foreground: #ffffff;
   --secondary: #e5e7eb;
   --secondary-foreground: #2d3748;
@@ -19,8 +19,14 @@
   --destructive-foreground: #ffffff;
   --border: #d1d5db;
   --ring: #3b82f6;
-  --divider: #d1d5db;
-  --sidebar-header: linear-gradient(90deg, #3b82f6, #a855f7); /* Vibrant gradient */
+  --myBubble: #FF69B4;
+  --otherBubble: #A7F3D0;
+  --myText: #FFFFFF;
+  --otherText: #1F2937;
+  --unreadBadge: #FFD700;
+  --sentIcon: #FFC0CB;
+  --deliveredIcon: #60A5FA;
+  --readIcon: #34D399;
 }
 
 body {
@@ -47,54 +53,16 @@ body {
   border-radius: 3px;
 }
 
-.hamburger-button {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.hamburger-button:hover {
-  transform: scale(1.1);
-  background: var(--primary-foreground);
-  color: var(--primary);
-}
-
-@keyframes wave {
-  0% { transform: rotate(0deg); }
-  10% { transform: rotate(14deg); }
-  20% { transform: rotate(-8deg); }
-  30% { transform: rotate(14deg); }
-  40% { transform: rotate(-4deg); }
-  50% { transform: rotate(10deg); }
-  60% { transform: rotate(0deg); }
-  100% { transform: rotate(0deg); }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
-}
-
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes ping {
   75%, 100% {
-    transform: scale(1.5);
+    transform: scale(1.3);
     opacity: 0;
   }
-}
-
-.animate-wave {
-  animation: wave 2s infinite;
-  transform-origin: 70% 70%;
-}
-
-.animate-wiggle {
-  animation: wiggle 1s infinite ease-in-out;
 }
 
 .animate-bounce {
@@ -107,4 +75,15 @@ body {
 
 .font-comic {
   font-family: 'Comic Neue', sans-serif;
+}
+
+.chat-name {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-bubble {
+  max-width: 70%;
 }

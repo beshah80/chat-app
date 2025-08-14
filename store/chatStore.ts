@@ -62,7 +62,7 @@ interface ChatState {
   addContact: (name: string, phone: string) => boolean;
   deleteContact: (contactId: string) => void;
   sendMessage: (chatId: string, content: string, quotedMessageId?: string) => void;
-  setActiveChat: (chatId: string) => void;
+  setActiveChat: (chatId: string | null) => void; // FIX: Now accepts string or null
   pinChat: (chatId: string) => void;
   archiveChat: (chatId: string) => void;
   toggleSidebar: () => void;

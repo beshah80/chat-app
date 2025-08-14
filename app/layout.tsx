@@ -1,11 +1,9 @@
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Chat App",
-  description: "A Telegram-like chat application",
+  description: "A fun, vibrant Telegram-like chat application",
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -15,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-50 antialiased font-comic`}>
+      <body className="bg-gray-50 dark:bg-gray-900 antialiased font-comic">
         {children}
       </body>
     </html>

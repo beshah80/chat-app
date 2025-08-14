@@ -1,45 +1,59 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import Image, { ImageProps } from "next/image";
 import { useState } from "react";
 
-const ERROR_IMG_SRC =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg==";
+interface ImageWithFallbackProps extends Omit<ImageProps, "src" | "alt"> {
+  src: string;
+  fallbackSrc?: string;
+  alt?: string;
+  ariaLabel?: string; // Added for accessibility
+  fallbackInitial?: string; // For initial-based fallback
+}
 
-export function ImageWithFallback(
-  props: React.ImgHTMLAttributes<HTMLImageElement>
-) {
-  const [didError, setDidError] = useState(false);
+export function ImageWithFallback({
+  src,
+  fallbackSrc = "/placeholder-image.png",
+  alt = "Image",
+  ariaLabel,
+  fallbackInitial,
+  className,
+  width = 112, // Matches ProfilePage's w-28 (112px)
+  height = 112, // Matches ProfilePage's h-28 (112px)
+  ...props
+}: ImageWithFallbackProps) {
+  const [imgSrc, setImgSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
 
-  const handleError = () => {
-    setDidError(true);
-  };
+  // Use fallbackInitial if provided and no valid image is loaded
+  const showFallbackInitial = hasError && fallbackInitial;
 
-  const { src, alt, style, className, ...rest } = props;
-
-  return didError ? (
+  return showFallbackInitial ? (
     <div
-      className={`inline-block bg-muted text-center align-middle ${
-        className ?? ""
-      }`}
-      style={style}
+      className={cn(
+        "flex items-center justify-center rounded-full bg-gradient-to-br from-blue-700 to-blue-600 dark:from-blue-300 dark:to-blue-200 text-white dark:text-gray-900 text-3xl font-comic font-bold shadow-lg",
+        className
+      )}
+      style={{ width: `${width}px`, height: `${height}px` }}
+      role="img"
+      aria-label={ariaLabel || alt}
     >
-      <div className="flex items-center justify-center w-full h-full">
-        <img
-          src={ERROR_IMG_SRC}
-          alt="Error loading image"
-          {...rest}
-          data-original-url={src}
-        />
-      </div>
+      {fallbackInitial?.charAt(0).toUpperCase() || "U"}
     </div>
   ) : (
-    <img
-      src={src}
+    <Image
+      src={imgSrc}
       alt={alt}
-      className={className}
-      style={style}
-      {...rest}
-      onError={handleError}
+      className={cn("rounded-full object-cover shadow-lg", className)}
+      onError={() => {
+        setImgSrc(fallbackSrc);
+        setHasError(true);
+      }}
+      width={width}
+      height={height}
+      aria-label={ariaLabel}
+      {...props}
     />
   );
 }
